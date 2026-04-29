@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Callable, Tuple
-from util.enums import FailureType
+from util.enums import FailureType, ResourceType
 
 @dataclass
 class ScanConfig:
@@ -24,14 +24,29 @@ class ScanConfig:
     eta_max_users: int
     parallel_batches: int
     hierarchial_crawl_batch_limit: int = 4
-    bucket_ranges: List[Tuple[int, int]] = [(0,1000),(1001,10000),(10001,100000)],
-    large_resource_count_limit: int = 500000
+    bucket_ranges: List[Tuple[int, int]] = field(default_factory=lambda: [(0, 1000), (1001, 10000), (10001, 100000)])
+    large_resource_count_limit: int = 1
 
 @dataclass
 class RequestResponsePair:
     request: Dict[str, Any]
     response: Dict[str, Any]
 
+@dataclass
+class Bucket:
+    sizeRange: Tuple[int, int]  # (Low, High) in MBs
+    count: int
+
+@dataclass
+class FileSizeDistribution:
+    buckets: List[Bucket]
+
+@dataclass
+class LargeResource:
+    Type: ResourceType
+    Id: str
+    subTreeCount: int
+    Limit: int
 
 RETRYABLE_ERROR_CODES = [429, 500, 502, 503, 504]
 
