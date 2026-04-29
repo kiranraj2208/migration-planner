@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Dict, List, Optional, Callable, Tuple
 from util.enums import FailureType
 
 @dataclass
@@ -24,6 +24,8 @@ class ScanConfig:
     eta_max_users: int
     parallel_batches: int
     hierarchial_crawl_batch_limit: int = 4
+    bucket_ranges: List[Tuple[int, int]] = [(0,1000),(1001,10000),(10001,100000)],
+    large_resource_count_limit: int = 500000
 
 @dataclass
 class RequestResponsePair:
