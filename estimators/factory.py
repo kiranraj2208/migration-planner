@@ -4,15 +4,16 @@ from util.utils import ScanConfig
 from estimators.eo_group_mailbox_estimator import EOGroupMailBoxEstimator
 from estimators.eo_shared_mailbox_estimator import EOSharedMailBoxEstimator
 from estimators.eo_in_place_archive_estimator import EOInPlaceArchiveEstimator
+from estimators.file_estimator import FileEstimator
 
 class EstimatorFactory():
   def __init__(
     self,
-    manager: TokenManager,
     config: ScanConfig,
-    logger,
-    stop_event,
-    id_to_display_name
+    manager: TokenManager = None,
+    logger = None,
+    stop_event = None,
+    id_to_display_name = None
   ):
     self.manager = manager
     self.config = config
@@ -22,7 +23,21 @@ class EstimatorFactory():
     self.shared_mail_box_estimator = None
     self.group_mail_box_estimator = None
     self.in_place_archive_estimator = None
+    self.files_estimator = None
     self.url_invoker = None
+  
+  def get_manager(self):
+    if not self.manager:
+      self.manager = TokenManager(
+        self.config.tenant_id,
+        self.config.client_ids,
+        self.config.client_secrets,
+        self.config.concurrency,
+        self.config.retries,
+        self.config.backoff,
+      )
+    
+    return self.manager
 
   def set_id_to_display_name(self, id_to_display_name):
     self.id_to_display_name = id_to_display_name if id_to_display_name is not None else {}
@@ -85,3 +100,20 @@ class EstimatorFactory():
       self.in_place_archive_estimator.set_id_to_display_name_map(self.id_to_display_name)
     
     return self.in_place_archive_estimator
+
+  def get_files_estimator(self, progress_update_callback=lambda x: None, hard_reset=False):
+    if self.files_estimator is None or hard_reset:
+      if self.files_estimator is not None:
+        self.files_estimator.shutdown()
+      
+      url_invoker = self.get_url_invoker()
+      self.files_estimator = FileEstimator(
+        self.config,
+        url_invoker,
+        logger=print,
+        stop_event=self.stop_event,
+        progress_update_callback=progress_update_callback
+      )
+      self.files_estimator.set_id_to_display_name_map(self.id_to_display_name)
+    
+    return self.files_estimator 
