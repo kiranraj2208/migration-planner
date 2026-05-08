@@ -26,8 +26,13 @@ class EstimatorFactory():
     self.files_estimator = None
     self.url_invoker = None
   
+  def isEmpty(self, data):
+    return data is None or len(data) == 0
+
   def get_manager(self):
     if not self.manager:
+      if self.isEmpty(self.config.client_ids) or self.isEmpty(self.config.client_secrets) or self.isEmpty(self.config.tenant_id):
+        raise Exception("Missing credentials for tenant scan!!")
       self.manager = TokenManager(
         self.config.tenant_id,
         self.config.client_ids,
