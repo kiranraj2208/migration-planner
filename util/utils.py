@@ -148,7 +148,8 @@ def process_pagination_responses(
     grouping_key: str,
     base_url: str,
     failures: Optional[List[Dict[str, Any]]] = None,
-    is_partial: bool = False
+    is_partial: bool = False,
+    progress_callback: Optional[Callable[[List], None]] = None
 ) -> List[Dict[str, Any]]:
     next_items = []
     batch_responses_map = {int(resp["id"]): resp for resp in responses}
@@ -165,6 +166,8 @@ def process_pagination_responses(
             
             if "body" in resp and "value" in resp["body"]:
                 orig_resp["body"]["value"] += resp["body"]["value"]
+                if progress_callback is not None:
+                    progress_callback(resp["body"]["value"])
                 
                 if "@odata.nextLink" in resp["body"]:
                     next_url = resp["body"]["@odata.nextLink"]
