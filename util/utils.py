@@ -26,6 +26,8 @@ class ScanConfig:
     hierarchial_crawl_batch_limit: int = 4
     bucket_ranges: List[Tuple[int, int]] = field(default_factory=lambda: [(0, 1000), (1001, 10000), (10001, 100000)])
     large_resource_count_limit: int = 2
+    includePersonalSites: bool = True
+    includeTeamSites: bool = True
 
 @dataclass
 class RequestResponsePair:
@@ -167,7 +169,7 @@ def process_pagination_responses(
             if "body" in resp and "value" in resp["body"]:
                 orig_resp["body"]["value"] += resp["body"]["value"]
                 if progress_callback is not None:
-                    progress_callback(resp["body"]["value"])
+                    progress_callback(resp["body"]["value"], "@odata.nextLink" in resp["body"])
                 
                 if "@odata.nextLink" in resp["body"]:
                     next_url = resp["body"]["@odata.nextLink"]

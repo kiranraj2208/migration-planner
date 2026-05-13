@@ -3,7 +3,7 @@ TOKEN_URL_TEMPLATE = "https://login.microsoftonline.com/{0}/oauth2/v2.0/token"
 MAX_RETRIES = 30
 BACKOFF = 2
 SHOW_LOAD_MULTIPLIER = False
-USE_MSFT_BACKOFF = False
+USE_MSFT_BACKOFF = True
 
 # --- UI Colors (Google Material 3) ---
 COLOR_PRIMARY = "#0B57D0"  # Google Blue
