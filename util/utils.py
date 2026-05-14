@@ -25,10 +25,10 @@ class ScanConfig:
     parallel_batches: int
     hierarchial_crawl_batch_limit: int = 4
     bucket_ranges: List[Tuple[int, int]] = field(default_factory=lambda: [(0, 1000), (1001, 10000), (10001, 100000)])
-    large_resource_count_limit: int = 50
+    large_resource_count_limit: int = 500000
     includePersonalSites: bool = True
     includeTeamSites: bool = True
-    max_allowed_depth: int = 3
+    max_allowed_depth: int = 20
 
 @dataclass
 class RequestResponsePair:
