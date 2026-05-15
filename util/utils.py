@@ -28,7 +28,7 @@ class ScanConfig:
     large_resource_count_limit: int = 500000
     includePersonalSites: bool = True
     includeTeamSites: bool = True
-    max_allowed_depth: int = 20
+    max_allowed_depth: int = 100
 
 @dataclass
 class RequestResponsePair:
