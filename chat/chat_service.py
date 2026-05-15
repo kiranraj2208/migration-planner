@@ -162,7 +162,7 @@ class ChatScannerService:
             source="channels",
             entity_type="Channels",
             progress=0.4 + 0.6 * (current_progress / max(1, total_len)),
-            extra_text=f"Analyzing Channels ({current_progress}/{total_len})",
+            extra_text=f"Scanning Channels ({current_progress}/{total_len})",
             processed=current_progress,
             failed=current_progress - stats["success_count"],
             cumulative=stats["messages"],
@@ -253,6 +253,7 @@ class ChatScannerService:
             "User.Read.All",
             "Reports.Read.All",
             "Chat.Read.All",
+            "ChannelMessage.Read.All",
         ]
     )
 
