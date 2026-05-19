@@ -90,7 +90,7 @@ class TokenManager:
           "grant_type": "client_credentials",
       }
       try:
-        resp = self.session.post(url, headers=headers, data=data)
+        resp = self.session.post(url, headers=headers, data=data, timeout=60)
         resp.raise_for_status()
 
         token_resp = resp.json()
@@ -156,7 +156,7 @@ class TokenManager:
         "grant_type": "client_credentials",
     }
     try:
-      resp = self.session.post(url, headers=headers, data=data)
+      resp = self.session.post(url, headers=headers, data=data, timeout=60)
       resp.raise_for_status()
       token_resp = resp.json()
 
@@ -333,7 +333,7 @@ class UrlInvoker():
                         if "body" not in response_item or not response_item["body"]:
                             logger(f"WARNING: Response item {req_id} in {context} has missing or empty body! Status: {status}")
                         if status == 429:
-                            print(f"Received Throttling error for {batch_url} | Response: {response_item}")
+                            logger(f"Received Throttling error for {batch_url} | Response: {response_item}")
                             headers_429 = response_item.get("headers", {})
                             try:
                                 wait_sec = int(float(headers_429.get("Retry-After", 0)))
