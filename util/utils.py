@@ -24,7 +24,7 @@ class ScanConfig:
     eta_max_users: int
     parallel_batches: int
     hierarchial_crawl_batch_limit: int = 4
-    bucket_ranges: List[Tuple[int, int]] = field(default_factory=lambda: [(0, 1000), (1001, 10000), (10001, 100000)])
+    bucket_ranges: List[Tuple[int, int]] = field(default_factory=lambda: [(0, 10240), (10241, 102400), (102401, 1048576), (1048577, float("inf"))])
     large_resource_count_limit: int = 500000
     includePersonalSites: bool = True
     includeTeamSites: bool = True
