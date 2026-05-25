@@ -4,7 +4,7 @@
 
 ## What's new
 
-Support for Sharepoint metrics for a tenant have been added. Users will now be able to generate various metrics for the Sharepoint resources (like sites, drives, etc.) for their specific tenant.
+Support for Files metrics for a tenant have been added. Users will now be able to generate various metrics for the File resources (like sites, drives, etc.) for their specific tenant.
 
 #### UX change to support new features
 - The startup screen would now show a selector that enables user to select if they want to run Exchange online estimations or Files estimations.
