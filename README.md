@@ -15,7 +15,6 @@ Support for Files metrics for a tenant have been added. Users will now be able t
 - The report screen would display:
   - **Summary Metrics**: This will display the summary metrics for the entire tenant.
   - **File Size Distribution**: This will display the distribution of files based on their sizes as per the bucket ranges provided in the input screen.
-  - **License Metrics**: This will display the license metrics for the tenant.
 
 #### System behaviour changes
 - **Site Discovery** and **Drive Discovery** phases in the progress screen would show indeterminate progress as the total number of sites/folders/files are not known during those phases.
