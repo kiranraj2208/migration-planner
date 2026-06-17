@@ -1,5 +1,6 @@
 from tkinter import filedialog, messagebox
 import customtkinter as ctk
+import re
 from typing import Any, Callable, Dict, List, Optional, Tuple
 import queue
 import threading
@@ -1402,7 +1403,7 @@ class MigrationEstimatorTool(ctk.CTk):
       one_token_per_app_manager = None
       if config.scan_in_place_archives:
         one_token_per_app_manager = self._authenticate_if_needed(config, use_single_app=True)
-      self.factory = EstimatorFactory(config, manager, self.log_msg, self.stop_scan_event, None)
+      self.factory = EstimatorFactory(config, manager, one_token_per_app_manager, self.log_msg, self.stop_scan_event, None)
       
       # 3. User Discovery
       all_users, existing_data, groups, shared_mailboxes = self._resolve_target_users(config, manager, one_token_per_app_manager)
@@ -1548,6 +1549,10 @@ class MigrationEstimatorTool(ctk.CTk):
             "CSV must contain 'Email Id' or 'User Principal Name' column."
         )
 
+      # Strip all the white spaces
+      users_to_resolve = [user.strip() for user in users_to_resolve]
+      groups_to_resolve = [group.strip() for group in groups_to_resolve]
+
     # 2. Determine if we need live scanning
     scanning_required = (
         (config.scan_email and not have_email)
@@ -1676,13 +1681,26 @@ class MigrationEstimatorTool(ctk.CTk):
         return int(float(val))
       except:
         return 0
+    
+    def _is_valid_email( val):
+      return bool(re.match(r'^[^@]+@[^@]+\.[^@]+$', val))
 
     for u in all_users:
       upn = u["userPrincipalName"]
       key = str(upn).lower().strip()
+      otherAliases = []
+      if "proxyAddresses" in u:
+        for alias in u["proxyAddresses"]:
+          alias_str = str(alias).strip()
+          if alias_str.lower().startswith("smtp:"):
+            email_alias = alias_str[5:].lower().strip()
+            if email_alias != key and _is_valid_email(email_alias):
+              otherAliases.append(email_alias)
+
       row = {
           "User Principal Name / Group Mail": upn,
           "User ID / Group ID": u["id"],
+          "Other Aliases": ';'.join(otherAliases),
           "Type": "User",
           "Email Count": 0,
           "Contact Count": 0,
@@ -1784,7 +1802,7 @@ class MigrationEstimatorTool(ctk.CTk):
     executor = ThreadPoolExecutor(max_workers=config.concurrency)
     estimator: Estimator = None
     if resource_type == "in_place_archives":
-      estimator = self.factory.get_in_place_archive_estimator(use_delta_api=True)
+      estimator = self.factory.get_in_place_archive_estimator(use_delta_api=False)
     elif resource_type == "shared_mails":
       estimator = self.factory.get_shared_mailbox_estimator()
     
@@ -2347,7 +2365,7 @@ class MigrationEstimatorTool(ctk.CTk):
     }
     df_output = df.rename(columns=output_map)
 
-    final_columns = ["Email Id", "Suggested Batch", "Type"]
+    final_columns = ["Email Id", "Other Aliases", "Suggested Batch", "Type"]
     if config.scan_email:
       final_columns.append("Email Count")
     if config.scan_contact:
@@ -2817,7 +2835,7 @@ class MigrationEstimatorTool(ctk.CTk):
 
   def _get_all_users_graph(self, manager):
     users = []
-    url = f"{GRAPH_BASE_URL}/users?$select=id,userPrincipalName&$top=999"
+    url = f"{GRAPH_BASE_URL}/users?$select=id,userPrincipalName,proxyAddresses&$top=999"
     token_data = manager.get_valid_token_slot(self.log_msg)
     token = token_data["token"]
     session = manager.get_session()
